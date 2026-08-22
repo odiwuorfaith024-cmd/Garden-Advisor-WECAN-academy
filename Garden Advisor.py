@@ -32,6 +32,19 @@ print(response.text)
 
 stage1_result = response.text
 
+stage1_result = response.text
+
+# JSON PARSING + ERROR HANDLING
+try:
+    parsed_stage1 = json.loads(stage1_result)
+except json.JSONDecodeError:
+    match = re.search(r'\{.*\}', stage1_result, re.DOTALL)
+    if match:
+        parsed_stage1 = json.loads(match.group(0))
+    else:
+        parsed_stage1 = {}
+        print("Error: Stage 1 did not return valid JSON")
+        
 #stage 2 prompt - generate a detailed action plan based on the diagnosis
 stage2_prompt = f"""
 Role: You're an agricultural expert for small scale farmers in Kenya.
@@ -49,3 +62,22 @@ response2 = client.models.generate_content(
 print("/n=== Stage 2: solutions of Diagnosis ===/n")
 print(response2.text)
 
+stage2_result = response2.text
+
+# save response to file
+timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+output_file = f"output/garden_advice_{timestamp}.txt"
+with open(output_file, "w") as f:
+    f.write(f"Crop: {crop}\n")
+    f.write(f"County: {county}\n")
+    f.write(f"Problem: {problem}\n")
+    f.write(f"Generated at: {timestamp}\n")
+    f.write("=" * 50 + "\n\n")
+    f.write("STAGE 1: DIAGNOSIS\n")
+    f.write("-" * 50 + "\n")
+    f.write(stage1_result)
+    f.write("\nSTAGE 2: SOLUTIONS OF DIAGNOSIS\n")
+    f.write("-" * 50 + "\n")
+    f.write(stage2_result)
+
+    print(f"\nResults saved to {output_file}")
