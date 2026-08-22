@@ -33,8 +33,6 @@ print(response.text)
 
 stage1_result = response.text
 
-stage1_result = response.text
-
 # JSON PARSING + ERROR HANDLING
 try:
     parsed_stage1 = json.loads(stage1_result)
@@ -43,8 +41,8 @@ except json.JSONDecodeError:
     if match:
         parsed_stage1 = json.loads(match.group(0))
     else:
-        parsed_stage1 = {}
-        print("Error: Stage 1 did not return valid JSON")
+                parsed_stage1 = {"diagnosis": stage1_result, "raw_output": True, "error": "non-json response"}
+    print(f"Warning: Stage 1 returned non-JSON, using raw text")
         
 #stage 2 prompt - generate a detailed action plan based on the diagnosis
 stage2_prompt = f"""
